@@ -13,6 +13,18 @@
 </p>
 
 <p align="center">
+  <a href="https://her-shield.vercel.app" target="_blank">
+    <img src="https://img.shields.io/badge/Live_Demo-Vercel_Deployment-black?style=for-the-badge&logo=vercel" alt="Live Demo"/>
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://vercel.com/venchu/her-shield/GsEYyGX4XCdnpKYUN9PaBjNU3mou" target="_blank" style="font-size: 14px; color: #E06287;">
+    View Temporary Deployment Dashboard
+  </a>
+</p>
+
+<p align="center">
   <i>"When she is ready to speak, HerShield ensures she has the evidence."</i>
 </p>
 
