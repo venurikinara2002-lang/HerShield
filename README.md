@@ -9,18 +9,8 @@
 <h1 align="center" style="color: #E06287;">🛡️ HerShield</h1>
 
 <p align="center">
-  <b>A highly secure, offline-first domestic safety application designed for discretion, rapid exit, and encrypted evidence gathering.</b>
-</p>
-
-<p align="center">
-  <a href="https://her-shield.vercel.app" target="_blank">
+  <a href="https://her-shield-delta.vercel.app?_vercel_share=ritCb7TywigCFVhUuCLCtJn6ma3gMYaK" target="_blank">
     <img src="https://img.shields.io/badge/Live_Demo-Vercel_Deployment-black?style=for-the-badge&logo=vercel" alt="Live Demo"/>
-  </a>
-</p>
-
-<p align="center">
-  <a href="https://vercel.com/venchu/her-shield/GsEYyGX4XCdnpKYUN9PaBjNU3mou" target="_blank" style="font-size: 14px; color: #E06287;">
-    View Temporary Deployment Dashboard
   </a>
 </p>
 
