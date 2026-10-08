@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-textslate font-sans antialiased;
+  }
+}
+
+@layer utilities {
+  .card-container {
+    @apply bg-card rounded-[16px] border border-tint shadow-sm p-4;
+  }
+}
