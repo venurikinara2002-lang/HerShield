@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Settings, Lock, EyeOff, Globe, Trash2, AlertTriangle, Download, Upload, Heart } from 'lucide-react';
-import { clearAllData } from '../lib/storage';
+import { clearAllData, exportVault, importVault } from '../lib/storage';
+import { getActiveMasterKey } from '../lib/crypto';
 
 export default function SettingsTab() {
   const { t, i18n } = useTranslation();
@@ -44,12 +45,66 @@ export default function SettingsTab() {
   };
 
   const handleEraseAll = async () => {
-    if (window.confirm("Erase ALL entries and settings? This cannot be undone.")) {
-      await clearAllData();
-      localStorage.clear();
-      sessionStorage.clear();
-      window.location.reload();
+    if (window.confirm("This will instantly wipe the app, but download an encrypted backup file to your phone first. Proceed?")) {
+      try {
+        const key = getActiveMasterKey();
+        const backupData = await exportVault(key);
+        
+        // Auto-download backup
+        const blob = new Blob([backupData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `hershield-backup-${new Date().toISOString().slice(0, 10)}.enc`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        await clearAllData();
+        localStorage.clear();
+        sessionStorage.clear();
+        alert("Encrypted backup downloaded. App wiped.");
+        window.location.reload();
+      } catch (e) {
+        console.error(e);
+        alert("Failed to export backup. Ensure vault is unlocked.");
+      }
     }
+  };
+
+  const handleExport = async () => {
+    try {
+      const key = getActiveMasterKey();
+      const backupData = await exportVault(key);
+      const blob = new Blob([backupData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `hershield-backup-${new Date().toISOString().slice(0, 10)}.enc`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert("Failed to export. Ensure vault is unlocked.");
+    }
+  };
+
+  const handleImport = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.enc';
+    input.onchange = async (e: any) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const key = getActiveMasterKey();
+        await importVault(text, key);
+        alert("Backup restored successfully!");
+        window.location.reload();
+      } catch (err) {
+        alert("Failed to import. Make sure you entered the correct PIN that was used when this backup was created.");
+      }
+    };
+    input.click();
   };
 
   return (
@@ -124,11 +179,12 @@ export default function SettingsTab() {
       {/* Backup */}
       <div className="card-container space-y-3">
         <h3 className="font-bold text-lg">Backup & Restore</h3>
+        <p className="text-sm opacity-80 text-textslate">Download an encrypted `.enc` file of your vault. It can only be restored using your PIN.</p>
         <div className="flex gap-2">
-          <button className="flex items-center gap-1 border border-primary text-primary px-4 py-2 rounded-lg font-bold text-sm w-full justify-center">
+          <button onClick={handleExport} className="flex items-center gap-1 border border-primary text-primary px-4 py-2 rounded-lg font-bold text-sm w-full justify-center hover:bg-primary/5">
             <Download size={16}/> Export
           </button>
-          <button className="flex items-center gap-1 border border-primary text-primary px-4 py-2 rounded-lg font-bold text-sm w-full justify-center">
+          <button onClick={handleImport} className="flex items-center gap-1 border border-primary text-primary px-4 py-2 rounded-lg font-bold text-sm w-full justify-center hover:bg-primary/5">
             <Upload size={16}/> Import
           </button>
         </div>

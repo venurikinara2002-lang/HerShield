@@ -100,3 +100,45 @@ export async function clearAllData() {
   await db.clear('logs');
   await db.clear('media');
 }
+
+export async function exportVault(key: CryptoKey): Promise<string> {
+  const db = await initDB();
+  const logs = await db.getAll('logs');
+  const contacts = localStorage.getItem('hershield-contacts') || '[]';
+  
+  const payload = JSON.stringify({ logs, contacts });
+  const { encrypted, iv } = await encryptData(payload, key);
+  
+  return JSON.stringify({
+    iv: arrayBufferToBase64(iv),
+    data: arrayBufferToBase64(encrypted)
+  });
+}
+
+export async function importVault(backupStr: string, key: CryptoKey): Promise<void> {
+  const { iv, data } = JSON.parse(backupStr);
+  
+  const decryptedPayload = await decryptData(
+    base64ToArrayBuffer(data).buffer,
+    base64ToArrayBuffer(iv),
+    key
+  );
+  
+  const { logs, contacts } = JSON.parse(decryptedPayload);
+  
+  // Restore contacts
+  if (contacts) {
+    localStorage.setItem('hershield-contacts', contacts);
+  }
+  
+  // Restore logs
+  if (logs && Array.isArray(logs)) {
+    const db = await initDB();
+    const tx = db.transaction('logs', 'readwrite');
+    await tx.store.clear();
+    for (const log of logs) {
+      await tx.store.put(log);
+    }
+    await tx.done;
+  }
+}
