@@ -2,14 +2,19 @@ export const ITERATIONS = 250000;
 export const SALT_LENGTH = 16;
 export const IV_LENGTH = 12;
 
-/**
- * Derives a cryptographic key from a PIN using PBKDF2 with SHA-256.
- */
-export async function generateKeyFromPin(pin: string, salt: Uint8Array): Promise<CryptoKey> {
+let activeMasterKey: CryptoKey | null = null;
+export function setActiveMasterKey(key: CryptoKey | null) { activeMasterKey = key; }
+export function getActiveMasterKey(): CryptoKey { 
+  if (!activeMasterKey) throw new Error("Vault is locked");
+  return activeMasterKey; 
+}
+
+// Derives a cryptographic key from a PIN or Recovery Code using PBKDF2
+export async function deriveKeyFromPassword(password: string, salt: Uint8Array): Promise<CryptoKey> {
   const enc = new TextEncoder();
   const keyMaterial = await window.crypto.subtle.importKey(
     "raw",
-    enc.encode(pin),
+    enc.encode(password),
     { name: "PBKDF2" },
     false,
     ["deriveBits", "deriveKey"]
@@ -24,23 +29,58 @@ export async function generateKeyFromPin(pin: string, salt: Uint8Array): Promise
     },
     keyMaterial,
     { name: "AES-GCM", length: 256 },
-    true, // We need to be able to export it if we ever need it in memory (though we should avoid it if possible, the prompt says "keep the key only in memory")
+    true,
     ["encrypt", "decrypt"]
   );
 }
 
-/**
- * Encrypts a string using AES-GCM.
- */
+// Generates the true Master Key that encrypts the actual data
+export async function generateMasterKey(): Promise<CryptoKey> {
+  return window.crypto.subtle.generateKey(
+    { name: "AES-GCM", length: 256 },
+    true, // Must be extractable so we can wrap it
+    ["encrypt", "decrypt"]
+  );
+}
+
+// Encrypts the Master Key with a wrapping key (PIN-derived or Recovery-derived)
+export async function encryptMasterKey(masterKey: CryptoKey, wrappingKey: CryptoKey): Promise<{ encryptedKey: ArrayBuffer; iv: Uint8Array }> {
+  const iv = window.crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+  const exportedMasterKey = await window.crypto.subtle.exportKey("raw", masterKey);
+  
+  const encryptedKey = await window.crypto.subtle.encrypt(
+    { name: "AES-GCM", iv: iv },
+    wrappingKey,
+    exportedMasterKey
+  );
+  
+  return { encryptedKey, iv };
+}
+
+// Decrypts the Master Key using a wrapping key
+export async function decryptMasterKey(encryptedKey: ArrayBuffer, iv: Uint8Array, wrappingKey: CryptoKey): Promise<CryptoKey> {
+  const decryptedRaw = await window.crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: iv },
+    wrappingKey,
+    encryptedKey
+  );
+  
+  return window.crypto.subtle.importKey(
+    "raw",
+    decryptedRaw,
+    { name: "AES-GCM" },
+    true,
+    ["encrypt", "decrypt"]
+  );
+}
+
+// Data encryption/decryption using the Master Key
 export async function encryptData(data: string, key: CryptoKey): Promise<{ encrypted: ArrayBuffer; iv: Uint8Array }> {
   const iv = window.crypto.getRandomValues(new Uint8Array(IV_LENGTH));
   const enc = new TextEncoder();
   
   const encrypted = await window.crypto.subtle.encrypt(
-    {
-      name: "AES-GCM",
-      iv: iv
-    },
+    { name: "AES-GCM", iv: iv },
     key,
     enc.encode(data)
   );
@@ -48,15 +88,9 @@ export async function encryptData(data: string, key: CryptoKey): Promise<{ encry
   return { encrypted, iv };
 }
 
-/**
- * Decrypts data using AES-GCM.
- */
 export async function decryptData(encrypted: ArrayBuffer, iv: Uint8Array, key: CryptoKey): Promise<string> {
   const decrypted = await window.crypto.subtle.decrypt(
-    {
-      name: "AES-GCM",
-      iv: iv
-    },
+    { name: "AES-GCM", iv: iv },
     key,
     encrypted
   );
@@ -65,16 +99,19 @@ export async function decryptData(encrypted: ArrayBuffer, iv: Uint8Array, key: C
   return dec.decode(decrypted);
 }
 
-/**
- * Generates a random salt for key derivation.
- */
 export function generateSalt(): Uint8Array {
   return window.crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
 }
 
-/**
- * Helper to encode/decode arrays to Base64 for local storage of IVs/Salts
- */
+export function generateRecoveryCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Excluded confusing chars like I, 1, O, 0
+  let code = '';
+  for (let i = 0; i < 12; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return `${code.slice(0,4)}-${code.slice(4,8)}-${code.slice(8,12)}`;
+}
+
 export function arrayBufferToBase64(buffer: ArrayBuffer | Uint8Array): string {
   const bytes = new Uint8Array(buffer);
   let binary = '';

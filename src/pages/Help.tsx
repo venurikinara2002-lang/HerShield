@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { helplines } from '../data/helplines';
-import { Phone } from 'lucide-react';
+import { Phone, Heart, MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function Help() {
@@ -38,9 +39,10 @@ export default function Help() {
           <a href={`tel:${hl.number}`} key={hl.number} className="card-container flex items-center justify-between hover:bg-tint transition-colors">
             <div>
               <h3 className="font-bold text-lg text-textslate">{hl.service}</h3>
-              <p className="text-sm opacity-70">{hl.si} | {hl.ta}</p>
+              <p className="font-black text-primary text-xl tracking-wide my-1">{hl.number}</p>
+              <p className="text-xs opacity-70">{hl.si} | {hl.ta}</p>
             </div>
-            <div className="bg-primary bg-opacity-10 p-3 rounded-full text-primary">
+            <div className="bg-primary bg-opacity-10 p-4 rounded-full text-primary shrink-0">
               <Phone size={24} />
             </div>
           </a>

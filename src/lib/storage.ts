@@ -1,4 +1,5 @@
-import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import { openDB } from 'idb';
+import type { DBSchema, IDBPDatabase } from 'idb';
 import { encryptData, decryptData, base64ToArrayBuffer, arrayBufferToBase64 } from './crypto';
 
 interface HerShieldDB extends DBSchema {

@@ -1,28 +1,70 @@
-# HerShield (Safe Haven)
+<div align="center">
+  <img src="https://img.shields.io/badge/Security-Offline_First-E06287?style=for-the-badge&logo=shield" alt="Security"/>
+  <img src="https://img.shields.io/badge/Encryption-AES_256_GCM-E06287?style=for-the-badge&logo=lock" alt="Encryption"/>
+  <img src="https://img.shields.io/badge/Privacy-No_Tracking-E06287?style=for-the-badge&logo=eye-off" alt="Privacy"/>
+</div>
 
-HerShield is a trauma-informed, privacy-first, offline-ready Progressive Web App (PWA) designed to support women in Sri Lanka experiencing emotional, psychological, and domestic abuse. 
+<h1 align="center">🛡️ HerShield</h1>
 
-## Core Features
-1. **Security & Privacy:** The app prioritizes safety. Data is encrypted entirely on the device using PBKDF2-SHA256 and AES-256-GCM encryption. There is no remote logging, no analytics, and no cloud backups.
-2. **Offline-First:** Built as a PWA, it functions seamlessly without an active internet connection after initial load.
-3. **Emergency Directory:** One-tap emergency contacts in English, Sinhala, and Tamil. 
-4. **Encrypted Incident Log:** A secure local log for recording incidents, behaviors, and uploading encrypted evidence (voice notes, photos).
-5. **Timeline & PDF Reports:** A reverse-chronological feed of logs, with the ability to generate a formal "Official Incident Documentation Record" in PDF format.
-6. **Hope & Affirmations:** Daily rotating, trauma-informed affirmations.
-7. **Legal Guide:** Plain-language summaries of Sri Lankan domestic violence laws, legal aid resources, and actionable steps.
-8. **Stealth Mode & Quick Exit:** A "Quick Exit" button instantly navigates to a safe site (or Open-Meteo weather). Stealth mode disguises the app as a "Daily Routine & Habit Journal".
+<p align="center">
+  <b>A highly secure, offline-first domestic safety application designed for discretion, rapid exit, and encrypted evidence gathering.</b>
+</p>
 
-## Technology Stack
-- **Frontend:** Vite, React 18, TypeScript, Tailwind CSS, lucide-react
-- **Internationalization:** `react-i18next` (English, Sinhala, Tamil)
-- **PWA:** `vite-plugin-pwa` (Workbox)
-- **Crypto & Storage:** Web Crypto API, IndexedDB (`idb`)
-- **Testing:** Vitest, React Testing Library, Playwright
+---
 
-## How to run the app right now
-The development server is currently running in the background of your IDE.
-1. Open your web browser on this computer.
-2. Go to **[http://localhost:5173](http://localhost:5173)** to see and use the app.
-3. To view it on your phone: Ensure your phone is on the same Wi-Fi network and navigate to the IP address of your computer (e.g., `http://192.168.x.x:5173`).
+## 🔒 Core Philosophy
+**Safety over everything.** A woman using this app may be monitored. HerShield is built on the strict principle of zero remote storage, zero tracking, and absolute data privacy. All data generated on this app stays encrypted strictly on the local device.
 
-*(TODO: Add detailed threat model, deploy steps, and translation verification notes)*
+## ✨ Key Features
+
+### 1. 🛑 Emergency SOS Network
+- **Granular Control**: Add and manage an offline network of trusted contacts.
+- **Panic Button**: Instantly trigger a mass emergency SMS to your entire network with one tap.
+- **Individual Comms**: Send customized WhatsApp or SMS alerts to specific contacts with pre-written templates (e.g., "Call me with a fake emergency").
+- *All communications are securely prefixed with `[HerShield SOS]` to immediately notify the recipient of the urgency.*
+
+### 2. 📓 Encrypted Evidence Vault
+- **Encrypted Logs**: Record dates, times, behaviors (Gaslighting, Threats, Physical intimidation, etc.), and personal descriptions of incidents.
+- **Military Grade Security**: Logs are encrypted using AES-256-GCM and a user-defined PIN. Not even the app developers can read this data.
+- **Offline Storage**: Uses `IndexedDB` to ensure evidence never touches the internet.
+
+### 3. 📄 Official PDF Generation
+- Instantly convert your encrypted incident logs into a highly professional, formatted PDF report.
+- Ready to be handed directly to law enforcement or legal counsel.
+- Documents are stamped with timestamps and confidential legal headers.
+
+### 4. 🥷 Stealth & Privacy Mechanisms
+- **Stealth Mode**: Disguises the application interface as a generic "Habit Journal" to evade detection by an abuser. Double-tap the invisible header to reveal the true app.
+- **Quick Exit (Panic Mode)**: A permanent, floating escape button (or double-tapping `ESC`) that instantly clears the app state and redirects the browser to a harmless pre-configured website (like a weather site).
+- **Auto-Lock**: App automatically purges the decryption key from memory and locks down after 3 minutes of inactivity.
+- **No Forgot Password**: To protect against forced resets, there is no email/SMS password recovery. The PIN is the only key.
+
+### 5. 🌍 Multi-lingual Support
+- Full i18n support offering instant toggling between **English, Sinhala, and Tamil**.
+- Essential for accessibility across all demographics in Sri Lanka.
+
+### 6. ⚖️ Localized Legal & Support Guidelines
+- Integrated Sri Lankan legal guides detailing the Prevention of Domestic Violence Act, Maintenance Act, and Penal Code.
+- Direct links and hotlines for the Legal Aid Commission, Sri Lanka Police, and Women's Bureaus.
+
+---
+
+## 🛠️ Tech Stack
+- **Framework**: React 19 + Vite
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS (v3) + Lucide Icons
+- **Cryptography**: Web Crypto API (AES-GCM, PBKDF2)
+- **Database**: IndexedDB (`idb`)
+- **Localization**: `i18next` & `react-i18next`
+- **Export**: `jsPDF` & `jspdf-autotable`
+
+---
+
+## 🚀 Getting Started
+
+1. **Clone the repository**
+2. **Install dependencies**: `npm install`
+3. **Run the local dev server**: `npm run dev`
+4. **Deploy**: The app is designed to be fully static and installable as a PWA.
+
+> *"When she is ready to speak, HerShield ensures she has the evidence."*
